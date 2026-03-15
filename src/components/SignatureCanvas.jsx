@@ -4,23 +4,55 @@ function SignatureCanvas({ photo, onSave }) {
   const canvasRef = useRef(null);
   const [drawing, setDrawing] = useState(false);
 
-  const startDrawing = (e) => {
-    const ctx = canvasRef.current.getContext("2d");
+  // Get canvas context
+  const getCtx = () => canvasRef.current.getContext("2d");
+
+  // Start drawing
+  const startDrawing = (x, y) => {
+    const ctx = getCtx();
     ctx.beginPath();
-    ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    ctx.moveTo(x, y);
     setDrawing(true);
   };
 
-  const draw = (e) => {
+  // Drawing
+  const draw = (x, y) => {
     if (!drawing) return;
-
-    const ctx = canvasRef.current.getContext("2d");
-    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    const ctx = getCtx();
+    ctx.lineTo(x, y);
     ctx.stroke();
   };
 
+  // Stop drawing
   const stopDrawing = () => {
     setDrawing(false);
+  };
+
+  // Mouse event handlers
+  const handleMouseDown = (e) =>
+    startDrawing(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+  const handleMouseMove = (e) =>
+    draw(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+  const handleMouseUp = stopDrawing;
+
+  // Touch event handlers
+  const handleTouchStart = (e) => {
+    e.preventDefault();
+    const rect = canvasRef.current.getBoundingClientRect();
+    const touch = e.touches[0];
+    startDrawing(touch.clientX - rect.left, touch.clientY - rect.top);
+  };
+
+  const handleTouchMove = (e) => {
+    e.preventDefault();
+    const rect = canvasRef.current.getBoundingClientRect();
+    const touch = e.touches[0];
+    draw(touch.clientX - rect.left, touch.clientY - rect.top);
+  };
+
+  const handleTouchEnd = (e) => {
+    e.preventDefault();
+    stopDrawing();
   };
 
   const handleSave = () => {
@@ -38,10 +70,14 @@ function SignatureCanvas({ photo, onSave }) {
         ref={canvasRef}
         width={500}
         height={200}
-        className="border rounded"
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
+        className="border rounded touch-none"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       />
 
       <button
