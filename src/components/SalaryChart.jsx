@@ -1,12 +1,12 @@
-function SalaryChart({ data = [] }) {
-  if (!Array.isArray(data)) return null;
+function SalaryChart({ data  }) {
+  if (data===null) return null;
 
   const citySalary = {};
 
   data.forEach((emp) => {
-    const city = emp[2];
+    const city = emp.city;
 
-    const salary = Number(emp[5].replace(/[$,]/g, ""));
+    const salary = Number(emp.salary.replace(/[$,]/g, ""));
 
     if (!citySalary[city]) {
       citySalary[city] = 0;
