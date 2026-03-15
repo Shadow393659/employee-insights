@@ -23,8 +23,15 @@ export const fetchEmployees = async () => {
 
     const data = await response.json();
     console.log("API Response:", data.TABLE_DATA.data); // Debug log
-
-    return data.TABLE_DATA.data;
+    const employees = data.TABLE_DATA.data.map((emp) => ({
+      id: emp[3],
+      name: emp[0],
+      position: emp[1],
+      city: emp[2],
+      date: emp[4],
+      salary: emp[5],
+    }));
+    return employees;
   } catch (error) {
     console.error("API Error:", error);
     throw error;
